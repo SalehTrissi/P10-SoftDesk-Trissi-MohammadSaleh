@@ -41,3 +41,65 @@ class Contributor(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.project.name}"
+
+
+class Issue(models.Model):
+    # Define choices for priority and tags
+    PRIORITY_CHOICES = [
+        ('LOW', 'Low'),
+        ('MEDIUM', 'Medium'),
+        ('HIGH', 'High'),
+    ]
+    TAG_CHOICES = [
+        ('BUG', 'Bug'),
+        ('FEATURE', 'Feature'),
+        ('TASK', 'Task'),
+    ]
+
+    # Define choices for status
+    STATUS_CHOICES = [
+        ('To Do', 'To Do'),
+        ('In Progress', 'In Progress'),
+        ('Finished', 'Finished'),
+    ]
+
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='created_issues'
+    )
+
+    assigned_to = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='assigned_issues',
+        null=True,
+        blank=True
+    )
+
+    project_id = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='issues'
+    )
+
+    priority = models.CharField(
+        max_length=10,
+        choices=PRIORITY_CHOICES,
+        default='MEDIUM'
+    )
+    tag = models.CharField(
+        max_length=10,
+        choices=TAG_CHOICES,
+        default='TASK'
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='To Do'
+    )
