@@ -1,5 +1,6 @@
 from django.db import models
 from users.models import User
+import uuid
 
 
 class Project(models.Model):
@@ -103,3 +104,14 @@ class Issue(models.Model):
         choices=STATUS_CHOICES,
         default='To Do'
     )
+
+
+class Comment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    text = models.TextField()
+
+    created_by = models.ForeignKey('User', on_delete=models.CASCADE)
+    issue = models.ForeignKey(
+        'Issue', on_delete=models.CASCADE, related_name='comments'
+    )
+    created_at = models.DateTimeField(auto_created=True)
