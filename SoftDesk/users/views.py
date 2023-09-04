@@ -38,6 +38,8 @@ class LoginView(APIView):
             # User is valid, generate JWT tokens
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token
+            print(f"Access Token: {access_token}")
+            print(f"Refresh Token: {refresh}")
             return Response({
                 'message': 'Login successful',
                 'access_token': str(access_token),
