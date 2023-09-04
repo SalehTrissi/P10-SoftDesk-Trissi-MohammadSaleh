@@ -6,8 +6,7 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
-    age = models.PositiveIntegerField(blank=False)
-    consent = models.BooleanField(default=False)
+    age = models.PositiveIntegerField(blank=True, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

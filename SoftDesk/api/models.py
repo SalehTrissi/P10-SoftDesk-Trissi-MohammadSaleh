@@ -25,9 +25,6 @@ class Project(models.Model):
     # Contributors to the project (many-to-many relationship with User through Contributor)
     contributors = models.ManyToManyField(User, through='Contributor')
 
-    def __str__(self):
-        return self.name
-
 
 class Contributor(models.Model):
     """
@@ -39,9 +36,6 @@ class Contributor(models.Model):
 
     # Project to which the user is a contributor (foreign key to Project model)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.project.name}"
 
 
 class Issue(models.Model):
@@ -110,7 +104,7 @@ class Comment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     text = models.TextField()
 
-    created_by = models.ForeignKey('User', on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     issue = models.ForeignKey(
         'Issue', on_delete=models.CASCADE, related_name='comments'
     )
