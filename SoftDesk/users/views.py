@@ -54,12 +54,14 @@ class LoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
+
 class UserViewSet(ModelViewSet):
     """
     A viewset for viewing and editing user instances.
     """
     serializer_class = UserSerializer
     queryset = User.objects.all()
+
 
 class UserView(APIView):
     # Requires authentication to access these endpoints
