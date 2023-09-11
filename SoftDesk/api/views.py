@@ -2,7 +2,7 @@ from rest_framework import generics
 from .models import Project, Issue, Comment
 from .serializers import ProjectSerializer, IssueSerializer, CommentSerializer
 from rest_framework.permissions import IsAuthenticated
-
+from .permissions import IsContributorToProject, CanUpdateOrDeleteComment, CanUpdateOrDeleteIssue
 # Create your views here.
 
 
@@ -22,7 +22,7 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
     # Use the ProjectSerializer for serialization
     serializer_class = ProjectSerializer
     # Only authenticated users can access this view
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsContributorToProject]
 
 # Create a view for listing and creating issues
 
@@ -50,7 +50,7 @@ class IssueListCreateView(generics.ListCreateAPIView):
 class IssueRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanUpdateOrDeleteIssue]
 
 
 class CommentListCreateView(generics.ListCreateAPIView):
@@ -67,4 +67,4 @@ class CommentListCreateView(generics.ListCreateAPIView):
 class CommentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, CanUpdateOrDeleteComment]
