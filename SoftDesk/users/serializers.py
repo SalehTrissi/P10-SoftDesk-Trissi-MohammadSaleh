@@ -7,6 +7,7 @@ class UserSerializer(serializers.ModelSerializer):
     # Define a write-only field for the user's password and age
     password = serializers.CharField(write_only=True)
     age = serializers.IntegerField(write_only=True)
+    has_consent = serializers.BooleanField(write_only=True)
 
     class Meta:
         model = User
