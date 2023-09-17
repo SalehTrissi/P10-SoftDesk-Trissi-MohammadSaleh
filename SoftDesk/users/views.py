@@ -75,6 +75,7 @@ class UserView(APIView):
             'email': request.user.email,
             'age': request.user.age,
         }
+        print(user_data)
         return Response(user_data, status=status.HTTP_200_OK)
 
     def put(self, request):
