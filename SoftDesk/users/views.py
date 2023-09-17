@@ -15,6 +15,14 @@ class RegisterView(APIView):
         serializer = UserSerializer(data=request.data)
 
         if serializer.is_valid():
+            # Check if the user has given consent
+            has_consent = serializer.validated_data.get('has_consent')
+            if not has_consent:
+                return Response(
+                    {'error_message': 'Consent is required to register.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
             user = serializer.save()
             return Response(
                 {'message': 'User created successfully', 'user_id': user.id},
