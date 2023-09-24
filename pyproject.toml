@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "p10-softdesk-trissi-mohammadsaleh"
+version = "0.1.0"
+description = ""
+authors = ["Saleh Trissi <rayatrissi1@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^4.2.5"
+djangorestframework-simplejwt = "^5.3.0"
+django-extensions = "^3.2.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
