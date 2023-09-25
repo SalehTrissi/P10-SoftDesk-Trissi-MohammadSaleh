@@ -3,8 +3,7 @@ from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-
-    # Define a write-only field for the user's password and age
+    # Define write-only fields for password, age, and consent
     password = serializers.CharField(write_only=True)
     age = serializers.IntegerField(write_only=True)
     has_consent = serializers.BooleanField(write_only=True)
@@ -22,11 +21,9 @@ class UserSerializer(serializers.ModelSerializer):
         age = validated_data.pop('age')
 
         # Check if the user is at least 15 years old
-        if age > 15:
-            # Create a new user object with the provided email
-            user = User.objects.create(
-                email=validated_data['email'],
-            )
+        if age >= 15:
+            # Create a new user object with the provided data
+            user = super().create(validated_data)
 
             # Set the user's password
             user.set_password(validated_data['password'])
