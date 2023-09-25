@@ -124,9 +124,9 @@ class LogoutView(APIView):
     def post(self, request):
         # Get the user's refresh token from the request (optional)
         refresh_token = request.data.get('refresh_token')
-
         # Revoke the user's refresh token
         if refresh_token:
+
             try:
                 RefreshToken(refresh_token).blacklist()
                 return Response(
