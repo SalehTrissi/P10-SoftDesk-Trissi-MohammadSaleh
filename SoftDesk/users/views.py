@@ -123,7 +123,7 @@ class LogoutView(APIView):
 
     def post(self, request):
         # Get the user's refresh token from the request (optional)
-        refresh_token = request.data.get['refresh_token']
+        refresh_token = request.data.get('refresh_token')
 
         # Revoke the user's refresh token
         if refresh_token:
@@ -142,5 +142,5 @@ class LogoutView(APIView):
         else:
             return Response(
                 {'message': 'Refresh token is required for logout'},
-                tatus=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST
             )
