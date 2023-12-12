@@ -46,8 +46,6 @@ class LoginView(APIView):
             # User is valid, generate JWT tokens
             refresh = RefreshToken.for_user(user)
             access_token = refresh.access_token
-            print(f"Access Token: {access_token}")
-            print(f"Refresh Token: {refresh}")
             return Response({
                 'message': 'Login successful',
                 'access_token': str(access_token),
@@ -85,7 +83,6 @@ class UserView(APIView):
             'email': request.user.email,
             'age': request.user.age,
         }
-        print(user_data)
         return Response(user_data, status=status.HTTP_200_OK)
 
     def put(self, request):

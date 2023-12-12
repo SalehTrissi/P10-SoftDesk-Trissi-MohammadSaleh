@@ -1,8 +1,14 @@
-from rest_framework import generics
+from datetime import timezone
+from rest_framework import generics, status
 from .models import Project, Issue, Comment
 from .serializers import ProjectSerializer, IssueSerializer, CommentSerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsContributorToProject, CanUpdateOrDeleteComment, CanUpdateOrDeleteIssue
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.db.models import Q
+
+
 # Create your views here.
 
 
@@ -14,8 +20,11 @@ class ProjectListCreateView(generics.ListCreateAPIView):
     # Only authenticated users can access this view
     permission_classes = [IsAuthenticated]
 
+    def perform_create(self, serializer):
+        # Set the author to the authenticated user
+        serializer.save(author=self.request.user)
 
-# Create a view to retrieve, update, and delete projects
+
 class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
     # Get all Project objects from the database
     queryset = Project.objects.all()
@@ -24,7 +33,27 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
     # Only authenticated users can access this view
     permission_classes = [IsAuthenticated, IsContributorToProject]
 
-# Create a view for listing and creating issues
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Check if the user is the author or has permission to delete
+        if instance.author == request.user or IsContributorToProject().has_object_permission(request, self, instance):
+            instance.delete()
+            return Response({"message": "Project deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"message": "You do not have permission to delete this project"}, status=status.HTTP_403_FORBIDDEN)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        # Check if the user is the author or has permission to update
+        if instance.author == request.user or IsContributorToProject().has_object_permission(request, self, instance):
+            serializer = self.get_serializer(
+                instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response({"message": "Project updated successfully"})
+        else:
+            return Response({"message": "You do not have permission to update this project"}, status=status.HTTP_403_FORBIDDEN)
 
 
 class IssueListCreateView(generics.ListCreateAPIView):
@@ -37,20 +66,49 @@ class IssueListCreateView(generics.ListCreateAPIView):
         # Assign the currently logged-in user as the creator of the issue
         serializer.save(created_by=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        # Add the created_by field to the request data before creating the issue
+        request.data["created_by"] = self.request.user.id
+        return super().create(request, *args, **kwargs)
+
     # Filter the queryset to show only issues related to projects where the user is a contributor
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated:
-            return Issue.objects.filter(project_id__contributors=user)
+            return Issue.objects.filter(Q(created_by=user) | Q(project_id__contributors=user))
         return Issue.objects.none()
-
-# Create a view for retrieving, updating, and deleting individual issues
 
 
 class IssueRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
     permission_classes = [IsAuthenticated, CanUpdateOrDeleteIssue]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Check if the user is allowed to delete the issue
+        if self.check_permission(instance):
+            instance.delete()
+            return Response({"message": "Issue deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({"message": "You do not have permission to delete this issue"}, status=status.HTTP_403_FORBIDDEN)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        # Check if the user is allowed to update the issue
+        if self.check_permission(instance):
+            serializer = self.get_serializer(
+                instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return Response({"message": "Issue updated successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "You do not have permission to update this issue"}, status=status.HTTP_403_FORBIDDEN)
+
+    def check_permission(self, issue):
+        # Check if the user is the author of the issue or has permission to update/delete
+        return issue.created_by == self.request.user or CanUpdateOrDeleteIssue().has_object_permission(self.request, self, issue)
 
 
 class CommentListCreateView(generics.ListCreateAPIView):

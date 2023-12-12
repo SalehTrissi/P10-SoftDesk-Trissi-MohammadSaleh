@@ -13,5 +13,4 @@ urlpatterns = [
     path('comments/', CommentListCreateView.as_view(), name='comment-list-create'),
     path('comments/<uuid:pk>/',
          CommentRetrieveUpdateDestroyView.as_view(), name='comment-detail'),
-
 ]
