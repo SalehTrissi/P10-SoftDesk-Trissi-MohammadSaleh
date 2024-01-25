@@ -27,17 +27,8 @@ class CanUpdateOrDeleteIssue(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        # Debug messages to check values
-        print(f"request.user: {request.user}")
-        print(f"obj.created_by: {obj.created_by}")
-
         # Check if the user is the author of the issue
-        has_permission = obj.created_by == request.user
-
-        # Debug message for permission result
-        print(f"Permission result: {has_permission}")
-
-        return has_permission
+        return obj.created_by == request.user
 
 
 class CanUpdateOrDeleteComment(permissions.BasePermission):
