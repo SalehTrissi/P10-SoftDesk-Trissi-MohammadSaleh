@@ -8,7 +8,14 @@ class IsContributorToProject(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Allow access if the request user is the author of the project
-        return obj.author == request.user or obj.contributors.filter(user=request.user).exists()
+        if obj.author == request.user:
+            return True
+
+        # Check if the request user is a contributor to the project
+        return obj.contributors.through.objects.filter(
+            user=request.user,
+            project=obj
+        ).exists()
 
 
 class CanUpdateOrDeleteRequest(permissions.BasePermission):

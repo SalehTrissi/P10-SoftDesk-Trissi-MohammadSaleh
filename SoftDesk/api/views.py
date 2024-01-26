@@ -7,18 +7,22 @@ from .permissions import IsContributorToProject, CanUpdateOrDeleteComment, CanUp
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Q
+from rest_framework.exceptions import PermissionDenied
 
 
 # Create your views here.
 
 
 class ProjectListCreateView(generics.ListCreateAPIView):
-    # Get all Project objects from the database
-    queryset = Project.objects.all()
+
     # Use the ProjectSerializer for serialization
     serializer_class = ProjectSerializer
     # Only authenticated users can access this view
     permission_classes = [IsAuthenticated]
+
+    # Get projects where the authenticated user is the author
+    def get_queryset(self):
+        return Project.objects.filter(author=self.request.user)
 
     def perform_create(self, serializer):
         # Set the author to the authenticated user
@@ -32,6 +36,16 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProjectSerializer
     # Only authenticated users can access this view
     permission_classes = [IsAuthenticated, IsContributorToProject]
+
+    def get_object(self):
+        # Retrieve the project instance
+        obj = super().get_object()
+        # Check if the user is the author or a contributor
+        if not (obj.author == self.request.user or IsContributorToProject().has_object_permission(self.request, self, obj)):
+            # If not, raise a PermissionDenied exception with a friendly message
+            raise PermissionDenied(
+                detail="You do not have permission to access this project.")
+        return obj
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
