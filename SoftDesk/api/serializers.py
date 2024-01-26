@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from .models import Project, Contributor, Issue, Comment
 
-# Create your views here.
-
 
 class ContributorSerializer(serializers.ModelSerializer):
     class Meta:

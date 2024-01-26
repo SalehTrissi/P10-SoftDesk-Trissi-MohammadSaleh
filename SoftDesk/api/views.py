@@ -1,13 +1,11 @@
-from datetime import timezone
+from django.db.models import Q
 from rest_framework import generics, status
 from .models import Project, Issue, Comment
-from .serializers import ProjectSerializer, IssueSerializer, CommentSerializer
-from rest_framework.permissions import IsAuthenticated
-from .permissions import IsContributorToProject, CanUpdateOrDeleteComment, CanUpdateOrDeleteIssue
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.db.models import Q
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
+from .serializers import ProjectSerializer, IssueSerializer, CommentSerializer
+from .permissions import IsContributorToProject, CanUpdateOrDeleteComment, CanUpdateOrDeleteIssue
 
 
 # Create your views here.
